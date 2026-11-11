@@ -1,0 +1,10 @@
+(test
+ (name test_vansh)
+ (libraries vansh)
+ (deps
+  (source_tree fixtures)))
+
+(cram
+ (deps
+  %{bin:vansh}
+  (source_tree fixtures)))

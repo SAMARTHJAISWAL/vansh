@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: test (${{ matrix.os }}, OCaml ${{ matrix.ocaml }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, ocaml: "5.5" }
+          - { os: macos-latest, ocaml: "5.5" }
+          - { os: ubuntu-latest, ocaml: "5.2" }
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: ${{ matrix.ocaml }}
+      - run: opam install . --deps-only --with-test
+      - name: Build
+        run: opam exec -- dune build
+      - name: Unit and CLI tests
+        run: opam exec -- dune test
+      - name: Lineage of the fixture project
+        run: |
+          opam exec -- dune exec -- vansh test/fixtures/dukaan/models --color never
+          opam exec -- dune exec -- vansh check test/fixtures/dukaan/models
+
+  web:
+    name: browser build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: "5.5"
+      - run: opam install . --deps-only js_of_ocaml js_of_ocaml-compiler
+      - run: opam exec -- ./web/build.sh _site
+      - name: The compiled analyzer gives the same answer as the CLI
+        run: |
+          node -e "
+            const {vansh} = require('./_site/vansh.js');
+            const r = JSON.parse(vansh.analyze(['q.sql'], ['select sum(p.amt) as paid from orders o join pay p on p.oid = o.id']));
+            const s = r.models[0].columns[0].sources[0];
+            if (s.table !== 'pay' || s.column !== 'amt' || s.kind !== 'aggregate') { console.error(JSON.stringify(r)); process.exit(1); }
+            console.log('ok', JSON.stringify(s));"

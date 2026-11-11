@@ -1,0 +1,41 @@
+name: Deploy demo
+
+on:
+  push:
+    branches: [main]
+    paths: ["lib/**", "web/**", "test/fixtures/**", ".github/workflows/pages.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: "5.5"
+      - run: opam install . --deps-only js_of_ocaml js_of_ocaml-compiler
+      - run: opam exec -- ./web/build.sh _site
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

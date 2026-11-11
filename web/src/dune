@@ -1,0 +1,6 @@
+; Optional: skipped when js_of_ocaml is not installed.
+(executable
+ (name vansh_js)
+ (modes js)
+ (optional)
+ (libraries vansh js_of_ocaml))

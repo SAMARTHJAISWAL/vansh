@@ -61,7 +61,7 @@ CI check passes on the clean project:
 and fails on a broken query, with the line number:
 
   $ printf 'select a from t;\n\nselect from where' | vansh check
-  error: <stdin>:3:18 expected an expression (found end of input)
+  error: <stdin>:3:8 expected a select list (found from)
   1 model, 1 error, 0 warnings
   [1]
 

@@ -68,7 +68,7 @@
   $("add-file").addEventListener("click", () => {
     let i = files.length + 1;
     while (files.some((f) => f.name === `models/model_${i}.sql`)) i++;
-    files.push({ name: `models/model_${i}.sql`, source: "select\n    \nfrom " });
+    files.push({ name: `models/model_${i}.sql`, source: "select\n    *\nfrom " + (files[0] ? files[0].name.split("/").pop().replace(/\.sql$/, "") : "orders") + "\n" });
     active = files.length - 1;
     renderTabs();
     showFile();

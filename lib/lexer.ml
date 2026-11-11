@@ -99,9 +99,17 @@ let tokenize (src : string) : token array =
     else if c = '"' then
       let s, st = delimited '"' in
       push (Quoted s) st
-    else if c = '`' then
+    else if c = '`' then (
+      (* BigQuery: `project.dataset.table` names three parts, not one *)
       let s, st = delimited '`' in
-      push (Quoted s) st
+      match String.split_on_char '.' s with
+      | [ _ ] | [] -> push (Quoted s) st
+      | parts ->
+          List.iteri
+            (fun k part ->
+              if k > 0 then push Dot st;
+              push (Quoted part) st)
+            parts)
     else if c = '$' && peek 1 = '$' then (
       (* $$ dollar-quoted $$ *)
       i := !i + 2;

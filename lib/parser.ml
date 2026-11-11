@@ -589,6 +589,7 @@ and parse_select st : select =
     if accept_kw st "on" then skip_parens st)
   else ignore (accept_kw st "all");
   if accept_kw st "top" then (if peek st = L.Lparen then skip_parens st else advance st; ignore (accept_kw st "percent"));
+  if is_kw st "from" || peek st = L.Eof then fail st "expected a select list";
   let items = parse_select_items st in
   if accept_kw st "into" then ignore (dotted_name st);
   let from = if accept_kw st "from" then parse_from_list st else [] in

@@ -42,7 +42,8 @@ let () =
   let kinds = Array.to_list (Array.map (fun (t : Lexer.token) -> t.kind) toks) in
   check "lexer: quoted identifier keeps case" (List.mem (Lexer.Quoted "Order Id") kinds);
   check "lexer: doubled quote escape" (List.mem (Lexer.String "it's") kinds);
-  check "lexer: backtick identifier" (List.mem (Lexer.Quoted "proj.ds.t") kinds);
+  check "lexer: backticked dotted name splits into parts"
+    (List.mem (Lexer.Quoted "proj") kinds && List.mem (Lexer.Quoted "ds") kinds && List.mem (Lexer.Quoted "t") kinds);
   check "lexer: comments dropped" (not (List.exists (function Lexer.Ident "comment" | Lexer.Ident "block" -> true | _ -> false) kinds));
   check "lexer: :: and >= operators" (List.mem (Lexer.Op "::") kinds && List.mem (Lexer.Op ">=") kinds);
   check "lexer: line numbers" ((List.nth (Array.to_list toks) 5).line = 2)
@@ -81,6 +82,9 @@ let () =
       "grant select on t to role r; set x = 1; select 1" ]
   in
   List.iter (fun sql -> check ("parses: " ^ sql) (parses sql)) ok;
+  (match (Parser.parse_script "select from t").statements with
+  | [ Error (msg, _, _) ] -> check "empty select list has a clear message" (String.length msg >= 22 && String.sub msg 0 22 = "expected a select list")
+  | _ -> check "empty select list is an error" false);
   let r = Parser.parse_script "select from where; select 1" in
   check "bad statement is reported, next one still parses"
     (match r.statements with [ Error _; Ok _ ] -> true | _ -> false)
@@ -119,6 +123,7 @@ let () =
   expect_lineage "flatten table function"
     "select f.value as v from events e, lateral flatten(input => e.payload) f" "v" [ "events.payload:transform" ];
   expect_lineage "struct field access" "select address.city as city from customers" "city" [ "customers.address:transform" ];
+  expect_lineage "BigQuery backticked table, short alias" "select t.a from `proj.ds.t`" "a" [ "proj.ds.t.a:direct" ];
   expect_lineage "three-part name" "select analytics.orders.id from analytics.orders" "id" [ "analytics.orders.id:direct" ];
   expect_lineage "recursive CTE"
     "with recursive r (n) as (select start_n from seed union all select n + 1 from r) select n from r" "n"

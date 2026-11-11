@@ -63,7 +63,8 @@ request check before anything is deployed.
 - **Works without a schema, more exactly with one.**
   - Without a schema, unknown tables are "open" and vansh warns when an unqualified column could come from more than one table.
   - Pass `--schema warehouse.sql` (plain `CREATE TABLE` statements) to expand `*` over source tables and resolve every column exactly.
-- **Tolerates real-world SQL across dialects:** quoted, backticked and `[bracketed]` identifiers, `$$` strings,
+- **Tolerates real-world SQL across dialects:** quoted, `[bracketed]` and backticked identifiers (BigQuery's
+  `` `project.dataset.table` `` is read as three parts), `$$` strings,
   `ILIKE`, `IS DISTINCT FROM`, `FILTER (WHERE …)`, `WITHIN GROUP`, named arguments (`input => x`), time travel,
   `TABLESAMPLE`, `GROUP BY ALL` and `GROUP BY 1, 2`. A statement that fails to parse is reported with its line and
   column, and the rest of the file is still analysed.
@@ -192,14 +193,14 @@ Column lineage is an established problem, and you may already have a tool for it
 ## Development
 
 ```sh
-dune build          # library, CLI and (if js_of_ocaml is installed) the browser bundle
+dune build          # library and CLI (no js_of_ocaml needed)
 dune test           # 100+ unit tests plus CLI cram tests (test/cli.t)
-./web/build.sh      # browser demo into _site/ (needs js_of_ocaml)
+./web/build.sh      # browser demo into _site/ (needs js_of_ocaml; builds under --profile web)
 ```
 
 `test/fixtures/dukaan/` is a small dbt project (a fictional Indian D2C store) used by the tests and the demo.
-CI runs the suite on Linux and macOS with OCaml 5.2 and 5.5, builds the browser bundle, and checks that it gives
-the same answer as the CLI.
+CI runs the suite on Linux and macOS with OCaml 5.2 and 5.5, builds the browser bundle and checks its answer on a
+sample query. Changes to the analyzer, the page or the fixtures redeploy the live demo automatically.
 
 ## License
 

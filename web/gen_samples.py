@@ -12,6 +12,6 @@ dbt.sort(key=lambda f: (0 if "/staging/" in f["name"] else 1, f["name"]))
 samples = {
     "dbt": dbt,
     "query": [{"name": "order_attribution.sql", "source": (root / "web/sample_query.sql").read_text()}],
-    "blank": [{"name": "query.sql", "source": "select\n    \nfrom "}],
+    "blank": [{"name": "query.sql", "source": "-- Write any SELECT, or add more files with + File.\nselect\n    id,\n    amount * 2 as doubled\nfrom orders\n"}],
 }
 print("window.VANSH_SAMPLES = " + json.dumps(samples, indent=1) + ";")

@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>vansh · column-level lineage for SQL and dbt</title>
+<meta name="description" content="Paste SQL or a dbt project and see where every column comes from and what breaks if it changes. A real OCaml SQL parser compiled to JavaScript; nothing leaves your browser.">
+<meta property="og:title" content="vansh · column-level lineage for SQL and dbt">
+<meta property="og:description" content="Where does this column come from? What breaks if I change it? Paste SQL and click a column.">
+<meta property="og:image" content="https://vansh-gold.vercel.app/og.png">
+<meta property="og:url" content="https://vansh-gold.vercel.app/">
+<link rel="canonical" href="https://vansh-gold.vercel.app/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%231e3a8a'/><circle cx='9' cy='9' r='3' fill='%23fff'/><circle cx='9' cy='23' r='3' fill='%23fff'/><circle cx='23' cy='16' r='3' fill='%23fbbf24'/><path d='M12 9c6 0 5 7 8 7M12 23c6 0 5-7 8-7' stroke='%23fff' stroke-width='2' fill='none'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="./"><span class="logo" aria-hidden="true"></span>vansh <span class="deva">वंश</span></a>
+  <p class="tagline">Column-level lineage for SQL and dbt. Click any column.</p>
+  <nav>
+    <a href="https://github.com/SAMARTHJAISWAL/vansh#how-it-works">How it works</a>
+    <a class="gh" href="https://github.com/SAMARTHJAISWAL/vansh">GitHub</a>
+  </nav>
+</header>
+
+<main class="app">
+  <section class="pane editor-pane" aria-label="SQL">
+    <div class="pane-bar">
+      <label class="sample">Example
+        <select id="sample">
+          <option value="dbt">dbt project · 7 models</option>
+          <option value="query">One warehouse query</option>
+          <option value="blank">Blank</option>
+        </select>
+      </label>
+      <button type="button" id="add-file" class="ghost">+ File</button>
+    </div>
+    <div class="tabs" id="file-tabs" role="tablist"></div>
+    <div class="file-name-row">
+      <input id="file-name" spellcheck="false" aria-label="File name">
+      <button type="button" id="del-file" class="ghost small" title="Remove this file">Remove</button>
+    </div>
+    <textarea id="sql" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="SQL source"></textarea>
+    <div id="problems" class="problems" aria-live="polite"></div>
+  </section>
+
+  <section class="pane graph-pane" aria-label="Lineage">
+    <div class="pane-bar">
+      <div class="view-tabs" role="tablist">
+        <button role="tab" aria-selected="true" data-view="graph">Graph</button>
+        <button role="tab" aria-selected="false" data-view="table">Columns</button>
+        <button role="tab" aria-selected="false" data-view="mermaid">Mermaid</button>
+      </div>
+      <div id="stats" class="stats"></div>
+    </div>
+
+    <div id="view-graph" class="view">
+      <div class="legend">
+        <span><i class="k direct"></i>direct</span>
+        <span><i class="k transform"></i>transform</span>
+        <span><i class="k aggregate"></i>aggregate</span>
+        <span><i class="unused-dot"></i>never used downstream</span>
+        <span class="zoom"><button id="zoom-out" class="ghost small" aria-label="Zoom out">−</button><button id="zoom-fit" class="ghost small">Fit</button><button id="zoom-in" class="ghost small" aria-label="Zoom in">+</button></span>
+      </div>
+      <div id="graph-scroll" class="graph-scroll"><svg id="graph" role="img" aria-label="Column lineage graph"></svg></div>
+      <aside id="inspector" class="inspector" hidden></aside>
+    </div>
+    <div id="view-table" class="view" hidden><div id="table" class="table-wrap"></div></div>
+    <div id="view-mermaid" class="view" hidden>
+      <div class="mermaid-bar"><span class="muted">Paste into any Markdown that renders Mermaid (GitHub does).</span><button id="copy-mermaid" class="ghost small">Copy</button></div>
+      <pre id="mermaid" class="code"></pre>
+    </div>
+  </section>
+</main>
+
+<section class="about">
+  <div>
+    <h2>A real parser, in your browser</h2>
+    <p>vansh is written in OCaml. Its hand-written SQL parser and scope resolver are compiled to JavaScript with
+      js_of_ocaml, so this page runs exactly the same analysis as the command-line tool. Your SQL never leaves the tab.</p>
+  </div>
+  <div>
+    <h2>Through everything that moves a value</h2>
+    <p>CTEs, subqueries, joins, <code>UNION</code>, <code>SELECT *</code> and <code>EXCLUDE</code>, window functions,
+      <code>CASE</code>, lateral aliases, <code>UNNEST</code>/<code>FLATTEN</code>, and dbt's <code>ref()</code>,
+      <code>source()</code>, <code>if</code> blocks and common macros.</p>
+  </div>
+  <div>
+    <h2>In CI, before you merge</h2>
+    <pre class="cmd">vansh impact stg_payments.amount models/
+vansh unused models/
+vansh check models/</pre>
+  </div>
+</section>
+<footer class="foot"><span>MIT licensed · built with OCaml 5</span><a href="https://github.com/SAMARTHJAISWAL">by Samarth Jaiswal</a></footer>
+
+<script src="vansh.js"></script>
+<script src="samples.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

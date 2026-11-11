@@ -3,7 +3,7 @@
 set -eu
 cd "$(dirname "$0")/.."
 out=${1:-_site}
-dune build --profile release web/src/vansh_js.bc.js
+dune build --profile web web/src/vansh_js.bc.js
 rm -rf "$out"
 mkdir -p "$out"
 cp web/index.html web/style.css web/app.js "$out"/

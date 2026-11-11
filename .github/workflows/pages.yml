@@ -23,7 +23,8 @@ jobs:
       - uses: ocaml/setup-ocaml@v3
         with:
           ocaml-compiler: "5.5"
-      - run: opam install . --deps-only js_of_ocaml js_of_ocaml-compiler
+      - run: opam install . --deps-only
+      - run: opam install js_of_ocaml js_of_ocaml-compiler
       - run: opam exec -- ./web/build.sh _site
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5

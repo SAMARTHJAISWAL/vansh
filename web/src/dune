@@ -1,6 +1,16 @@
-; Optional: skipped when js_of_ocaml is not installed.
+; The browser bundle exists only in the `web` build profile (./web/build.sh
+; passes --profile web), so a plain `dune build` / `dune test` never needs
+; js_of_ocaml.
+
+(env
+ (web
+  (js_of_ocaml
+   (compilation_mode whole_program)
+   (flags (:standard --opt 3)))))
+
 (executable
  (name vansh_js)
  (modes js)
- (optional)
+ (enabled_if
+  (= %{profile} web))
  (libraries vansh js_of_ocaml))

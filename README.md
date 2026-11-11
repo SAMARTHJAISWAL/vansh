@@ -4,20 +4,21 @@
 
 **Column-level lineage for SQL and dbt. Find out where every column comes from, and what breaks if you change it.**
 
-[![Live demo](https://img.shields.io/badge/Live_demo-try_it_in_your_browser-1e3a8a?style=flat)](https://samarthjaiswal.github.io/vansh/)
+[![Live demo](https://img.shields.io/badge/Live_demo-try_it_in_your_browser-1e3a8a?style=flat)](https://vansh-gold.vercel.app/)
 [![CI](https://github.com/SAMARTHJAISWAL/vansh/actions/workflows/ci.yml/badge.svg)](https://github.com/SAMARTHJAISWAL/vansh/actions/workflows/ci.yml)
 [![OCaml 5](https://img.shields.io/badge/OCaml-5.2%2B-ec6813?logo=ocaml&logoColor=white)](https://ocaml.org)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-<a href="https://samarthjaiswal.github.io/vansh/"><img src="docs/demo.png" alt="The vansh demo: a dbt project on the left, its column lineage graph on the right, with every column downstream of raw.payments.amount highlighted" width="900"></a>
+<a href="https://vansh-gold.vercel.app/"><img src="docs/demo.png" alt="The vansh demo: a dbt project on the left, its column lineage graph on the right, with every column downstream of raw.payments.amount highlighted" width="900"></a>
 
 </div>
 
 *Vansh* (वंश) is Hindi for "lineage" or "family line".
 
-**[Try it in your browser →](https://samarthjaiswal.github.io/vansh/)** Edit the SQL and the graph updates as you type.
+**[Try it in your browser →](https://vansh-gold.vercel.app/)** Edit the SQL and the graph updates as you type.
 Click any column to light up everything it is computed from and everything computed from it. The page runs the real
-analyzer: the OCaml code compiled to a 150 KB JavaScript file. Your SQL never leaves the tab.
+analyzer: the OCaml code compiled to a 150 KB JavaScript file. Your SQL never leaves the tab. (Mirror:
+[GitHub Pages](https://samarthjaiswal.github.io/vansh/).)
 
 ## Why
 
@@ -200,7 +201,8 @@ dune test           # 100+ unit tests plus CLI cram tests (test/cli.t)
 
 `test/fixtures/dukaan/` is a small dbt project (a fictional Indian D2C store) used by the tests and the demo.
 CI runs the suite on Linux and macOS with OCaml 5.2 and 5.5, builds the browser bundle and checks its answer on a
-sample query. Changes to the analyzer, the page or the fixtures redeploy the live demo automatically.
+sample query. Changes to the analyzer, the page or the fixtures rebuild the demo automatically: CI publishes it to
+GitHub Pages and pushes the static files to the `vercel-site` branch, which Vercel serves without a build step.
 
 ## License
 

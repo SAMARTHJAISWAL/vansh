@@ -6,7 +6,7 @@ out=${1:-_site}
 dune build --profile web web/src/vansh_js.bc.js
 rm -rf "$out"
 mkdir -p "$out"
-cp web/index.html web/style.css web/app.js "$out"/
+cp web/index.html web/style.css web/app.js web/vercel.json "$out"/
 [ -f web/og.png ] && cp web/og.png "$out"/
 cp _build/default/web/src/vansh_js.bc.js "$out/vansh.js"
 chmod u+w "$out/vansh.js"
